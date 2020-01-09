@@ -1,20 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { like, removeBlog } from '../reducers/blogReducer'
 import { createNotification } from '../reducers/notificationReducer'
+import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types'
 
 const Blog = (props) => {
   const blog = props.blog
   const creator = props.creator
-  const [expanded, setExpanded] = useState(false)
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
+  if(!props.blog) {
+    return null
   }
 
   const like = async (blog) => {
@@ -22,7 +18,7 @@ const Blog = (props) => {
     props.createNotification(`blog ${blog.title} by ${blog.author} liked!`)
   }
 
-  const remove= async (blog) => {
+  const remove = async (blog) => {
     const ok = window.confirm(`remove blog ${blog.title} by ${blog.author}`)
     if (ok) {
       props.removeBlog(blog)
@@ -30,25 +26,18 @@ const Blog = (props) => {
     }
   }
 
-  const details = () => (
-    <div className='details'>
+  return (
+    <div>
+      <h2>{blog.title} {blog.author}</h2>
       <a href={blog.url}>{blog.url}</a>
       <div>{blog.likes} likes
-        <button onClick={() => like(blog)}>like</button>
+        <Button variant='contained' color='primary' onClick={() => like(blog)}>like</Button>
       </div>
       <div>added by {blog.user.name}</div>
-      {creator &&(<button onClick={() => remove(blog)}>remove </button>)}
+      {creator && (<button onClick={() => remove(blog)}>remove </button>)}
     </div>
   )
-
-  return (
-    <div style={blogStyle}>
-      <div onClick={() => setExpanded(!expanded)} className='name'>
-        {blog.title} {blog.author}
-      </div>
-      {expanded && details()}
-    </div>
-  )}
+}
 
 
 const mapDispatchToProps = {
