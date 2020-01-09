@@ -3,7 +3,7 @@ const initialState = {
   type: 'success'
 }
 
-const reducer = (state = initialState , action) => {
+const reducer = (state = initialState, action) => {
   console.log('notificatio state now', state)
   switch (action.type) {
     case 'SUCCESS': return {
@@ -19,17 +19,21 @@ const reducer = (state = initialState , action) => {
 }
 
 
-export const createNotification = (notification) => {
-  if (notification.type === 'success') {
-    return {
-      data: notification.message,
-      type: 'SUCCESS'
-    }
+export const createNotification = (notification, type = 'SUCCESS') => {
+  return async dispatch => {
+    setTimeout(() => {
+      return dispatch({
+        data: null,
+        type: 'SUCCESS'
+      })
+    }, 10000)
+
+    return dispatch({
+      data: notification,
+      type
+    })
   }
-  return {
-    data: notification.message,
-    type: 'ERROR'
-  }
+
 }
 
 export default reducer

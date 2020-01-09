@@ -1,8 +1,14 @@
 import React, { useState } from 'react'
+import { connect } from 'react-redux'
+import { like, removeBlog } from '../reducers/blogReducer'
+import { createNotification } from '../reducers/notificationReducer'
 import PropTypes from 'prop-types'
 
-const Blog = ({ blog, like, remove, creator }) => {
+const Blog = (props) => {
+  const blog = props.blog
+  const creator = props.creator
   const [expanded, setExpanded] = useState(false)
+  console.log(props)
 
   const blogStyle = {
     paddingTop: 10,
@@ -10,6 +16,19 @@ const Blog = ({ blog, like, remove, creator }) => {
     border: 'solid',
     borderWidth: 1,
     marginBottom: 5
+  }
+
+  const like = async (blog) => {
+    props.like(blog)
+    props.createNotification(`blog ${blog.title} by ${blog.author} liked!`)
+  }
+
+  const remove= async (blog) => {
+    const ok = window.confirm(`remove blog ${blog.title} by ${blog.author}`)
+    if (ok) {
+      props.removeBlog(blog)
+      props.createNotification(`blog ${blog.title} by ${blog.author} removed!`)
+    }
   }
 
   const details = () => (
@@ -33,11 +52,17 @@ const Blog = ({ blog, like, remove, creator }) => {
   )}
 
 
+const mapDispatchToProps = {
+  like,
+  removeBlog,
+  createNotification
+}
+
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
-  like: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
   creator: PropTypes.bool.isRequired
 }
 
-export default Blog
+const ConnectedBlog = connect(null, mapDispatchToProps)(Blog)
+
+export default ConnectedBlog

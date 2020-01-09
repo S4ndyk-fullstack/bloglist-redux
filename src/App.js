@@ -1,81 +1,37 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Blog from './components/Blog'
-import blogService from './services/blogs'
-import loginService from './services/login'
 import NewBlog from './components/NewBlog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import { useField } from './hooks'
 import { createNotification } from './reducers/notificationReducer'
-import { createBlog, initialize, removeBlog, like } from './reducers/blogReducer'
+import { initializeBlogs } from './reducers/blogReducer'
+import { initializeUser, logout, login } from './reducers/userReducer'
 import { connect } from 'react-redux'
 
 const App = (props) => {
   const [username] = useField('text')
   const [password] = useField('password')
-  const [user, setUser] = useState(null)
 
   useEffect(() => {
-    props.initialize()
+    props.initializeUser()
+    props.initializeBlogs()
   }, [])
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
-    }
-  }, [])
-
-  const notify = (message, type = 'success') => {
-    props.createNotification({ message, type })
-    setTimeout(() => props.createNotification({ message: null }), 10000)
-  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const user = await loginService.login({
+      await props.login({
         username: username.value,
         password: password.value
       })
-
-      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-      setUser(user)
     } catch (exception) {
-      notify('wrong username of password', 'error')
+      props.createNotification('wrong username of password', 'ERROR')
     }
   }
 
-  const handleLogout = () => {
-    setUser(null)
-    blogService.destroyToken()
-    window.localStorage.removeItem('loggedBlogAppUser')
-  }
-
-  const createBlog = async (blog) => {
-    newBlogRef.current.toggleVisibility()
-    const createdBlog = props.createBlog(blog)
-    console.log(createdBlog)
-    notify(`a new blog ${blog.title} by ${blog.author} added`)
-  }
-
-  const likeBlog = async (blog) => {
-    props.like(blog)
-    notify(`blog ${blog.title} by ${blog.author} liked!`)
-  }
-
-  const removeBlog = async (blog) => {
-    const ok = window.confirm(`remove blog ${blog.title} by ${blog.author}`)
-    if (ok) {
-      props.removeBlog(blog)
-      notify(`blog ${blog.title} by ${blog.author} removed!`)
-    }
-  }
-
-  if (user === null) {
+  if (props.user === null) {
     return (
       <div>
         <h2>log in to application</h2>
@@ -107,21 +63,18 @@ const App = (props) => {
 
       <Notification />
 
-      <p>{user.name} logged in</p>
-      <button onClick={handleLogout}>logout</button>
+      <p>{props.user.name} logged in</p>
+      <button onClick={() => props.logout()}>logout</button>
 
       <Togglable buttonLabel='create new' ref={newBlogRef}>
-        <NewBlog createBlog={createBlog} />
+        <NewBlog />
       </Togglable>
 
       {props.blogs.sort(byLikes).map(blog =>
         <Blog
           key={blog.id}
           blog={blog}
-          like={likeBlog}
-          remove={removeBlog}
-          user={user}
-          creator={blog.user.username === user.username}
+          creator={blog.user.username === props.user.username}
         />
       )}
     </div>
@@ -130,16 +83,17 @@ const App = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    blogs: state.blogs
+    blogs: state.blogs,
+    user: state.user
   }
 }
 
 const mapDispatchToProps = {
   createNotification,
-  createBlog,
-  removeBlog,
-  initialize,
-  like
+  initializeBlogs,
+  initializeUser,
+  login,
+  logout
 }
 
 const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App)

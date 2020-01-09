@@ -3,7 +3,7 @@ import blogService from '../services/blogs'
 const reducer = (state = [], action) => {
   console.log('blog state: ', state)
   switch (action.type) {
-    case 'INITIALIZE':
+    case 'INITIALIZE_BLOGS':
       return action.data
     case 'CREATE':
       return state.concat(action.data)
@@ -17,10 +17,10 @@ const reducer = (state = [], action) => {
 
 export const removeBlog = blog => {
   return async dispatch => {
-    const removedBlog = await blogService.remove(blog)
+    await blogService.remove(blog)
     dispatch({
       type: 'DELETE',
-      data: removedBlog
+      data: blog
     })
   }
 }
@@ -49,11 +49,11 @@ export const createBlog = blog => {
   }
 }
 
-export const initialize = () => {
+export const initializeBlogs = () => {
   return async dispatch => {
     const blogs = await blogService.getAll()
     dispatch({
-      type: 'INITIALIZE',
+      type: 'INITIALIZE_BLOGS',
       data: blogs
     })
   }
