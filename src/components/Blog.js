@@ -4,6 +4,7 @@ import { like, removeBlog } from '../reducers/blogReducer'
 import { createNotification } from '../reducers/notificationReducer'
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
 
 const Blog = (props) => {
   const blog = props.blog
@@ -23,6 +24,7 @@ const Blog = (props) => {
     if (ok) {
       props.removeBlog(blog)
       props.createNotification(`blog ${blog.title} by ${blog.author} removed!`)
+      props.history.push('/blogs')
     }
   }
 
@@ -53,4 +55,4 @@ Blog.propTypes = {
 
 const ConnectedBlog = connect(null, mapDispatchToProps)(Blog)
 
-export default ConnectedBlog
+export default withRouter(ConnectedBlog)

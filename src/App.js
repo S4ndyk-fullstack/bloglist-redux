@@ -48,11 +48,11 @@ const App = (props) => {
         <form onSubmit={handleLogin}>
           <div>
             käyttäjätunnus
-            <input {...username} />
+            <input id='username' {...username} />
           </div>
           <div>
             salasana
-            <input {...password} />
+            <input id='password' {...password} />
           </div>
           <button type="submit">kirjaudu</button>
         </form>
@@ -87,7 +87,7 @@ const App = (props) => {
         <Route path='/' render={() => <Redirect to='/blogs' />} />
         <Route exact path='/blogs' render={() =>
           props.blogs.sort(byLikes).map(blog =>
-            <div key={blog.id} style={blogStyle}>
+            <div id='blog' key={blog.id} style={blogStyle}>
               <Link to={`/blogs/${blog.id}`}>
                 {blog.title} by {blog.author}
               </Link>
@@ -98,7 +98,7 @@ const App = (props) => {
         <Route path='/blogs/:id' render={({ match }) => {
           const blog = props.blogs.find(b => b.id === match.params.id)
           return (
-            <Blog blog={blog} creator={blog.user.id === props.user.id} />
+            <Blog blog={blog} creator={blog.user.username === props.user.username} />
           )
         }} />
 
