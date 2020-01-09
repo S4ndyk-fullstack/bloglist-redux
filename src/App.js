@@ -3,6 +3,9 @@ import Blog from './components/Blog'
 import NewBlog from './components/NewBlog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import Users from './components/Users'
+import User from './components/User'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { useField } from './hooks'
 import { createNotification } from './reducers/notificationReducer'
 import { initializeBlogs } from './reducers/blogReducer'
@@ -41,7 +44,7 @@ const App = (props) => {
         <form onSubmit={handleLogin}>
           <div>
             käyttäjätunnus
-            <input {...username}/>
+            <input {...username} />
           </div>
           <div>
             salasana
@@ -70,13 +73,22 @@ const App = (props) => {
         <NewBlog />
       </Togglable>
 
-      {props.blogs.sort(byLikes).map(blog =>
-        <Blog
-          key={blog.id}
-          blog={blog}
-          creator={blog.user.username === props.user.username}
-        />
-      )}
+
+      <Router>
+        <Route exact path='/users' render={() => <Users />} />
+        <Route exact path='/' render={() =>
+          props.blogs.sort(byLikes).map(blog =>
+            <Blog
+              key={blog.id}
+              blog={blog}
+              creator={blog.user.username === props.user.username}
+            />
+          )
+        } />
+        <Route path='/users/:id' render={({ match }) => 
+          <User user={props.userbase.find(u => u.id === match.params.id)}/>} />
+      </Router>
+
     </div>
   )
 }
@@ -84,7 +96,8 @@ const App = (props) => {
 const mapStateToProps = (state) => {
   return {
     blogs: state.blogs,
-    user: state.user
+    user: state.user,
+    userbase: state.userbase
   }
 }
 

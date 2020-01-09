@@ -8,7 +8,6 @@ const Blog = (props) => {
   const blog = props.blog
   const creator = props.creator
   const [expanded, setExpanded] = useState(false)
-  console.log(props)
 
   const blogStyle = {
     paddingTop: 10,
